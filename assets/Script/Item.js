@@ -11,6 +11,8 @@ cc.Class({
         indexID: cc.Label,
         Lv: cc.Sprite,
         star: cc.Label,
+        starNode: cc.Node,
+        starNum: cc.Label,
         itemID: 0,
     },
     
@@ -27,8 +29,6 @@ cc.Class({
     updateItem: function(tmplId, itemId, type, dataArray) {
         var self = this;
         this.itemID = parseInt(itemId);
-        cc.log('Item itemID = ', this.itemID);
-        cc.log('Item type = ', type);
         if (this.itemID == 0) {
             self.place.node.active = true;
             self.indexID.node.active = false;
@@ -59,10 +59,10 @@ cc.Class({
             self.userName.string = Tool.InterceptDiyStr(Tool.encryptMoblieNumber(dataArray.nickname), 3);
             var mScore = Tool.goldSplit(grade);
             self.star.node.active = true;
+            self.starNode.active = false;
             self.star.string = mScore.toString();
 
             cc.loader.loadRes("coin", cc.SpriteFrame, function(error, spriteFrame) {
-                self.Lv.node.scale = 1.0;
                 self.Lv.spriteFrame = spriteFrame;
             });
 
@@ -77,13 +77,14 @@ cc.Class({
             var mScore = Tool.getLevelInfo(grade);
             if (mScore.star == -1) {
                 self.star.node.active = false;
+                self.starNode.active = false;
             } else {
-                self.star.node.active = true;
-                self.star.string = mScore.star + "星";
+                self.star.node.active = false;
+                self.starNode.active = true;
+                self.starNum.string = mScore.star;
             }
 
             cc.loader.loadRes("Lv_" + mScore.bigLevel, cc.SpriteFrame, function(error, spriteFrame) {
-                self.Lv.node.scale = 0.2;
                 self.Lv.spriteFrame = spriteFrame;
             });
 
@@ -93,10 +94,10 @@ cc.Class({
 
             var mScore = Tool.goldSplit(dataArray[itemId].g);
             self.star.node.active = true;
+            self.starNode.active = false;
             self.star.string = mScore.toString();
 
             cc.loader.loadRes("coin", cc.SpriteFrame, function(error, spriteFrame) {
-                self.Lv.node.scale = 1.0;
                 self.Lv.spriteFrame = spriteFrame;
             });
 
@@ -107,13 +108,14 @@ cc.Class({
             var mScore = Tool.getLevelInfo(dataArray[itemId].s);
             if (mScore.star == -1) {
                 self.star.node.active = false;
+                self.starNode.active = false;
             } else {
-                self.star.node.active = true;
-                self.star.string = mScore.star + "星";
+                self.star.node.active = false;
+                self.starNode.active = true;
+                self.starNode.string = mScore.star + "星";
             }
 
             cc.loader.loadRes("Lv_" + mScore.bigLevel, cc.SpriteFrame, function(error, spriteFrame) {
-                self.Lv.node.scale = 0.2;
                 self.Lv.spriteFrame = spriteFrame;
             });
         }

@@ -23,7 +23,9 @@ cc.Class({
         runkNum_1: cc.Label,
         userName: cc.Label,
         Lv: cc.Sprite,
-        star: cc.Label
+        star: cc.Label,
+        starNode: cc.Node,
+        starNum: cc.Label,
     },
 
     // use this for initialization
@@ -261,7 +263,8 @@ cc.Class({
                             }
                             return b.KVDataList[0].value - a.KVDataList[0].value;
                         });
-
+                        this.totalCount = data.length;
+                        this.content.height = this.totalCount * (159 + this.spacing) + this.spacing;
                         for (let i = 0; i < data.length; i++) {
                             var playerInfo = data[i];
                             var item = cc.instantiate(this.itemTemplate);
@@ -282,15 +285,14 @@ cc.Class({
                                 } else if (i == 1) {
                                     this.runkNum_0.node.active = true;
                                     cc.loader.loadRes("place_2", cc.SpriteFrame, function (error, spriteFrame) {
-                                        this.runkNum_0.spriteFrame = spriteFrame;
+                                        self.runkNum_0.spriteFrame = spriteFrame;
                                     });
                                 } else if (i == 2) {
                                     this.runkNum_0.node.active = true;
                                     cc.loader.loadRes("place_3", cc.SpriteFrame, function (error, spriteFrame) {
-                                        this.runkNum_0.spriteFrame = spriteFrame;
+                                        self.runkNum_0.spriteFrame = spriteFrame;
                                     });
                                 } else {
-                                    this.place.node.active = false;
                                     this.runkNum_0.node.active = false;
                                     this.runkNum_1.node.active = true;
                                     this.runkNum_1.string = (i + 1).toString();
@@ -301,23 +303,25 @@ cc.Class({
                                     var mScore = Tool.getLevelInfo(grade);
                                     if (mScore.star == -1) {
                                         this.star.node.active = false;
+                                        this.starNode.active = false;
                                     } else {
-                                        this.star.node.active = true;
-                                        this.star.string = mScore.star + "星";
+                                        this.star.node.active = false;
+                                        this.starNode.active = true;
+                                        this.starNum.string = mScore.star;
                                     }
 
                                     cc.loader.loadRes("Lv_" + mScore.bigLevel, cc.SpriteFrame, function(error, spriteFrame) {
-                                        self.Lv.node.scale = 0.2;
                                         self.Lv.getComponent(cc.Sprite).spriteFrame = spriteFrame;
                                     });
                                 } else {
                                     let grade = playerInfo.KVDataList.length != 0 ? playerInfo.KVDataList[0].value : 0;
                                     var mScore = Tool.goldSplit(grade);
                                     this.star.node.active = true;
+                                    this.starNode.active = false;
                                     this.star.string = mScore.toString();
+                                    cc.log("微信服务器通知的自己的金币 = " + grade);
 
                                     cc.loader.loadRes("coin", cc.SpriteFrame, function(error, spriteFrame) {
-                                        self.Lv.node.scale = 1.0;
                                         self.Lv.getComponent(cc.Sprite).spriteFrame = spriteFrame;
                                     });
                                 }
@@ -361,11 +365,17 @@ cc.Class({
     // 显示国服榜
     showGuoFuRunk: function (type, data, messageName, messageUrl, messageScore, messageCoin) {
         var self = this;
+        cc.log("data = " , data);
         this.items = [];
         this.showData = [];
-        this.showData = data.list;
+        this.showData = data.list.sort((a, b) => {
+            return (a.r - b.r)
+        });
+
+        cc.log('this.showData = ', this.showData);
+        // this.showData = data.list;
         this.totalCount = data.list.length;
-        this.content.height = this.totalCount * (122 + this.spacing) + this.spacing;
+        this.content.height = this.totalCount * (159 + this.spacing) + this.spacing;
         for (var i = 0; i < this.spawnCount; ++i) {
             var item = cc.instantiate(this.itemTemplate);
             this.content.addChild(item);
@@ -395,22 +405,23 @@ cc.Class({
             var mScore = Tool.getLevelInfo(messageScore);
             if (mScore.star == -1) {
                 this.star.node.active = false;
+                this.starNode.active = false;
             } else {
-                this.star.node.active = true;
-                this.star.string = mScore.star + "星";
+                this.star.node.active = false;
+                this.starNode.active = true;
+                this.starNum.string = mScore.star;
             }
 
             cc.loader.loadRes("Lv_" + mScore.bigLevel, cc.SpriteFrame, function(error, spriteFrame) {
-                self.Lv.node.scale = 0.2;
                 self.Lv.getComponent(cc.Sprite).spriteFrame = spriteFrame;
             });
         } else {
             var mScore = Tool.goldSplit(messageCoin);
+            this.starNode.active = false;
             this.star.node.active = true;
             this.star.string = mScore.toString();
 
             cc.loader.loadRes("coin", cc.SpriteFrame, function(error, spriteFrame) {
-                self.Lv.node.scale = 1.0;
                 self.Lv.getComponent(cc.Sprite).spriteFrame = spriteFrame;
             });
         }
